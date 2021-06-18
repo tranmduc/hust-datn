@@ -1,5 +1,5 @@
 # hust-datn
-This is project for Graduation Thesis at HUST.
+This is a project for Graduation Thesis at HUST.
 
 ## About the project
 
