@@ -115,7 +115,7 @@ if data_file is not None:
         N = len(data_frame1)
 
         if choice == "FCM":
-            m = st.sidebar.slider('Choose m', int(1), int(10), int(2))
+            m = st.sidebar.slider('Choose m', int(1), int(60), int(2))
 
             if st.sidebar.button('Predict'):
                 rand = []
@@ -152,8 +152,8 @@ if data_file is not None:
                 st.write('---')
 
         elif choice == "MCFCM":
-            m_l = st.sidebar.slider('m1', float(1), float(10), float(2))
-            m_u = st.sidebar.slider('m2', float(1), float(10), float(2))
+            m_l = st.sidebar.slider('m1', float(1), float(60), float(2))
+            m_u = st.sidebar.slider('m2', float(1), float(60), float(2))
             fmSmall = st.sidebar.slider('fm(Small)', float(0), float(1), float(0))
             uVery = st.sidebar.slider('uVery', float(0), float(1), float(0))
             uMore = st.sidebar.slider('uMore', float(0), float(1), float(0))
@@ -194,9 +194,9 @@ if data_file is not None:
                 st.write('---')
 
         elif choice == "FCMT2I":
-            m_l = st.sidebar.slider('m1', float(1), float(10), float(2))
-            m_u = st.sidebar.slider('m2', float(1), float(10), float(2))
-            m = st.sidebar.slider('Choose m', int(1), int(10), int(2))
+            m_l = st.sidebar.slider('m1', float(1), float(60), float(2))
+            m_u = st.sidebar.slider('m2', float(1), float(60), float(2))
+            m = st.sidebar.slider('Choose m', int(1), int(60), int(2))
 
             if st.sidebar.button('Predict'):
                 rand = []
@@ -245,7 +245,7 @@ if data_file is not None:
         N = len(data_frame)
 
         if choice == "FCM":
-            m = st.sidebar.slider('Choose m', int(1), int(10), int(2))
+            m = st.sidebar.slider('Choose m', int(1), int(60), int(2))
 
             if st.sidebar.button('RUN'):
                 my_clustering = FuzzyCMeans(m, data_frame, N, K, epsilon)
@@ -267,8 +267,8 @@ if data_file is not None:
                 st.write('---')
 
         elif choice == "MCFCM":
-            m_l = st.sidebar.slider('m1', float(1), float(10), float(2))
-            m_u = st.sidebar.slider('m2', float(1), float(10), float(2))
+            m_l = st.sidebar.slider('m1', float(1), float(60), float(2))
+            m_u = st.sidebar.slider('m2', float(1), float(60), float(2))
             fmSmall = st.sidebar.slider('fm(Small)', float(0), float(1), float(0))
             uVery = st.sidebar.slider('uVery', float(0), float(1), float(0))
             uMore = st.sidebar.slider('uMore', float(0), float(1), float(0))
@@ -294,9 +294,9 @@ if data_file is not None:
                 st.write('---')
 
         elif choice == "FCMT2I":
-            m_l = st.sidebar.slider('m1', float(1), float(10), float(2))
-            m_u = st.sidebar.slider('m2', float(1), float(10), float(2))
-            m = st.sidebar.slider('Choose m', int(1), int(10), int(2))
+            m_l = st.sidebar.slider('m1', float(1), float(60), float(2))
+            m_u = st.sidebar.slider('m2', float(1), float(60), float(2))
+            m = st.sidebar.slider('Choose m', int(1), int(60), int(2))
 
             if st.sidebar.button('RUN'):
                 my_clustering = FCMT2I(data_frame, np.random.rand(K, len(features)) * 12, m, m_l, m_u)
