@@ -16,5 +16,5 @@ This is a project for Graduation Thesis at HUST.
 ### Running
 `streamlit run app.py`
 
-##Notes
+## Notes
 The Github of this project can be found at: https://github.com/tranmduc/hust-datn
