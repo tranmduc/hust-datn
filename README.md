@@ -4,7 +4,7 @@ This is project for Graduation Thesis at HUST.
 ## About the project
 
 * This is a web application for fuzzy clustering.
-* The website is deployed at https://ductm-datn-hust.herokuapp.com/
+* The website is deployed at: https://ductm-datn-hust.herokuapp.com/
 
 ## Running on local machines
 ### Prerequisites
@@ -15,3 +15,6 @@ This is project for Graduation Thesis at HUST.
 
 ### Running
 `streamlit run app.py`
+
+##Notes
+The Github of this project can be found at: https://github.com/tranmduc/hust-datn
