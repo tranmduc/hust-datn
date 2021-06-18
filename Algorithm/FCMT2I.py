@@ -47,8 +47,7 @@ class FCMT2I:
             m = x.shape[1]
         except IndexError:
             m = 1
-        # shape = (x.shape[0], x.shape[1])
-        # n,m=np.array([x]).shape
+
         ur = u ** r
         center = np.dot(ur, x) / (np.dot(ur, np.ones((n, m))))
         return center
@@ -57,7 +56,7 @@ class FCMT2I:
         e = 1
         l = 1
         L = 10 ** 5
-        # dlist=np.zeros((L,1))
+
         n, m = x.shape
         u = (ulower + uupper) / 2
         c, tt = u.shape
@@ -73,20 +72,20 @@ class FCMT2I:
                             u[j, k] = ulower[j, k]
                 v2[:, [i]] = self.GetCenter(x[:, [i]], u, r)
             d = np.sum(np.sum(np.abs(v1 - v2), axis=0), axis=0)
-            # dlist[l]=d
+
             if d < e:
                 v = np.copy(v2)
                 break
             else:
                 v1 = np.copy(v2)
-        # return v,dlist
+
         return v
 
     def KMCR(self, x, ulower, uupper, r):
         e = 1
         l = 1
         L = 10 ** 5
-        # dlist=np.zeros((L,1))
+
         n, m = x.shape
         u = (ulower + uupper) / 2
         c, tt = u.shape
@@ -102,13 +101,13 @@ class FCMT2I:
                             u[j, k] = ulower[j, k]
                 v2[:, [i]] = self.GetCenter(x[:, [i]], u, r)
             d = np.sum(np.sum(np.abs(v1 - v2)))
-            # dlist[l]=d
+
             if d < e:
                 v = np.copy(v2)
                 break
             else:
                 v1 = np.copy(v2)
-        # return v,dlist
+
         return v
 
     def predict(self, center,x):
@@ -125,22 +124,21 @@ class FCMT2I:
         e = 10 ** (-4)
         l = 0
         L = 10 ** 5
-        # dlist=np.zeros((L+1,1))
-        # c=np.size(vs,l)
+
         while (l <= L):
             u1 = self.MembershipMatrix(v1, self.x, self.dis, self.r1)
             u2 = self.MembershipMatrix(v1, self.x, self.dis, self.r2)
             ulower = np.minimum(u1, u2)
             uupper = np.maximum(u1, u2)
-            # vl = KMCL(x, ulower, uupper, r)[0]
+
             vl = self.KMCL(self.x, ulower, uupper, self.r)
-            # vr = KMCR(x, ulower, uupper, r)[0]
+
             vr = self.KMCR(self.x, ulower, uupper, self.r)
             v2 = (vl + vr) / 2
             d = np.sum(np.sum(np.abs(v1 - v2)))
-            # print(d)
+
             if d > e:
-                # dlist[l]=d
+
                 v1 = np.copy(v2)
                 l = l + 1
             else:
@@ -151,9 +149,9 @@ class FCMT2I:
 
         result = self.predict(ve[:], self.x)
         return ve, result.T[0]
-        # return result,ve,vl,vr,dlist
+
 
     def merge(self, a, b):
         x = np.squeeze(np.stack((a, b), axis=1))
-        # x = x[x[:, 1].argsort()]
+        x = x[x[:, 1].argsort()]
         return x

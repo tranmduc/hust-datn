@@ -64,7 +64,6 @@ class FuzzyCMeans:
                 tmp1 = t * self.data_frame[j, :]
                 center += tmp1
             center_clusters[i, :] = center / s
-            # print(center)
         return center_clusters
 
     def updateMembershipMatrix(self, center_clusters):
@@ -91,13 +90,9 @@ class FuzzyCMeans:
         inverse_matrix_distance = 1.00 / matrix_distance
 
         for j in range(self.K):
-            # Cj = center_clusters[j, :]
             for i in range(self.N):
-                # Xi = self.data_frame[i, :]
-                # dist_Xi_Cj = self.dist(Xi, Cj)
                 s = 0
                 for k in range(self.K):
-                    # Ck = center_clusters[k, :]
                     t = matrix_distance[i, j] * inverse_matrix_distance[i, k]
                     s += (t ** p)
                 matrix[j, i] = float(1) / s
@@ -131,18 +126,14 @@ class FuzzyCMeans:
                 self.data_frame[i][j] = (self.data_frame[i][j] - b[j]) / (a[j] - b[j])
 
     def fit(self):
-        # self.normalizeData()
         matrix = self.initializeMembershipMatrix()
-        # tmp = matrix
         cluster_centers = np.zeros((self.K, self.data_frame.shape[1]))
         tmp = cluster_centers
         count = 0
         while True:
             cluster_centers = self.updateCenters(matrix)
             matrix = self.updateMembershipMatrix(cluster_centers)
-            # terminate = (np.linalg.norm(matrix - tmp))
             terminate = (np.linalg.norm(cluster_centers - tmp))
-            # tmp = matrix
             tmp = cluster_centers
             if ((terminate < self.eps) or (count >= self.max_count)):
                 break

@@ -17,8 +17,6 @@ class MCFCM:
         self.uVery = uVery
         self.uMore = uMore
         self.length = length
-        # self.alpha = alpha
-        # self.HAList = [0.072, 0.192, 0.336, 0.496, 0.712, 0.892]
         self.HAList = HedgeAlgebra(self.fmSmall, self.uVery, self.uMore, self.length)
 
     def DistanceMatrix(self, center, x):
@@ -75,7 +73,6 @@ class MCFCM:
                 tmp1 = t * self.data_frame[j, :]
                 center += tmp1
             center_clusters[i, :] = center / s
-            # print(center)
         return center_clusters
 
     def updateMembershipMatrix(self, center_clusters):
@@ -92,7 +89,6 @@ class MCFCM:
 
         """
         matrix = np.random.rand(self.K, self.N)
-        # p = 2 / (self.m - 1)
         matrix_distance = np.zeros((self.N, self.K))
         inverse_matrix_distance = np.zeros((self.N, self.K))
         for i in range(self.N):
@@ -102,14 +98,10 @@ class MCFCM:
         inverse_matrix_distance = 1.00 / matrix_distance
 
         for j in range(self.K):
-            # Cj = center_clusters[j, :]
             for i in range(self.N):
-                # Xi = self.data_frame[i, :]
-                # dist_Xi_Cj = self.dist(Xi, Cj)
                 s = 0
                 p = 2 / (self.m[i] - 1)
                 for k in range(self.K):
-                    # Ck = center_clusters[k, :]
                     t = matrix_distance[i, j] * inverse_matrix_distance[i, k]
                     s += (t ** p)
                 matrix[j, i] = float(1) / s
@@ -154,15 +146,11 @@ class MCFCM:
             delta_s.sort()
             for l in range(nb):
                 delta_sum[i] = delta_sum[i] + delta_s[l]
-            # self.m[i] = self.m_l + (self.m_u - self.m_l) * pow(((delta_sum - delta_min)/(delta_max - delta_min)), self.alpha)
-            # print(self.m[i])
 
         for i in range(self.N):
             delta_max = max(delta_sum)
             delta_min = min(delta_sum)
             tmp = (delta_sum[i] - delta_min)/(delta_max - delta_min)
-            # tmp = pow(((delta_sum[i] - delta_min) / (delta_max - delta_min)), self.alpha)
-            # print(tmp)
             min_subtract = tmp - self.HAList[0]
             min_ind = 0
             for l in range(len(self.HAList)):
@@ -172,14 +160,10 @@ class MCFCM:
                     min_ind = l
 
             xha = self.HAList[min_ind]
-            # print(xha)
             self.m[i] = self.m_l + (self.m_u - self.m_l) * xha
-            # self.m[i] = self.m_l + (self.m_u - self.m_l) * tmp
 
     def fit(self):
-        # self.normalizeData()
         matrix = self.initializeMembershipMatrix()
-        # tmp = matrix
         cluster_centers = np.zeros((self.K, self.data_frame.shape[1]))
         tmp = cluster_centers
         count = 0
@@ -187,9 +171,7 @@ class MCFCM:
         while True:
             cluster_centers = self.updateCenters(matrix)
             matrix = self.updateMembershipMatrix(cluster_centers)
-            # terminate = (np.linalg.norm(matrix - tmp))
             terminate = (np.linalg.norm(cluster_centers - tmp))
-            # tmp = matrix
             tmp = cluster_centers
             if ((terminate < self.eps) or (count >= self.max_count)):
                 break
