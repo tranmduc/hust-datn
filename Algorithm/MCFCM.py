@@ -1,5 +1,5 @@
 import numpy as np
-from HedgeAlgebra import HedgeAlgebra
+from Algorithm.HedgeAlgebra import HedgeAlgebra
 from scipy.spatial.distance import cdist
 
 class MCFCM:

@@ -5,11 +5,10 @@ from sklearn.metrics.cluster import rand_score
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import silhouette_score
-from FuzzyCMeans import FuzzyCMeans
-from MCFCM import MCFCM
-from FCMT2I import FCMT2I
-from pandas_profiling import ProfileReport
-from streamlit_pandas_profiling import st_profile_report
+from Algorithm.FuzzyCMeans import FuzzyCMeans
+from Algorithm.MCFCM import MCFCM
+from Algorithm.FCMT2I import FCMT2I
+from plot import scatter_, histogram_, box_
 from statistics import mean
 import pickle
 import base64
@@ -22,35 +21,66 @@ def download_model(model, filename):
 
 st.title("""
 FUZZY CLUSTERING APPLICATION
-This App Perform Fuzzy Clustering Algorithm 
+This App Performs Fuzzy Clustering Algorithm 
 """)
 st.write('---')
 
 st.sidebar.header('MENU')
-
 st.sidebar.subheader('1. Upload Data')
 data_file = st.sidebar.file_uploader("Upload CSV", type=['csv'])
-
 if data_file is not None:
     df_full = pd.read_csv(data_file)
+    columns = list(df_full.columns)
     st.header("Dataset")
     st.dataframe(df_full)
+    st.write('---')
 
-    st.sidebar.subheader('2. Explore Data Analysis')
-    pr = ProfileReport(df_full, explorative=True)
-    if st.sidebar.button('Generate Profiling Report'):
-        st.header("Explore Data Analysis")
-        st_profile_report(pr)
+    st.sidebar.subheader('2. Exploratory Data Analysis')
+    dropID = st.sidebar.selectbox("Does your dataset contains ID field?", ['YES', 'NO'])
+    if dropID == 'YES':
+        df_full.drop(columns[0], axis=1, inplace=True)
+        del columns[0]
+    st.header("Exploratory Data Analysis")
+    st.subheader("Summary")
+    st.write(df_full.describe())
+
+    label_cols = ['None']
+    label_cols = label_cols + columns
+
+    st.sidebar.subheader("Visualization")
+    x = st.sidebar.selectbox("Choose X", columns)
+    y = st.sidebar.selectbox("Choose Y", columns)
+    c = st.sidebar.selectbox("Choose Categorical", label_cols)
+    bins = st.sidebar.slider('Choose number of bins: ', int(2), int(20), int(10))
+
+    if st.sidebar.button('Plot'):
+        scatter_fig = scatter_(df_full, x, y, c)
+        histogram = histogram_(df_full, x, c, bins)
+        st.subheader('Scatter Plot')
+        st.write(scatter_fig)
+        st.subheader('Histogram')
+        st.write(histogram)
+
+        if c != 'None':
+            box_fig = box_(df_full, x, c)
+            st.subheader('Box Plot')
+            st.write(box_fig)
 
     st.sidebar.subheader('3. Data Preprocessing')
-    columns = list(df_full.columns)
-    cols = list(df_full.columns)
-    all = 'All'
-    cols.append(all)
+    dropNA = st.sidebar.selectbox("Do you want to drop all row that have NA in any attribute", ['YES', 'NO'])
+    if dropNA =='YES':
+        df_full = df_full.dropna()
+
+    label = st.sidebar.selectbox("Choose Categorical Label column", label_cols)
+    regression_label = st.sidebar.selectbox("Choose Regression Label column", label_cols)
+
+    cols = ['All']
+    cols = cols + columns
+    cols = [col for col in cols if (col != label and col != regression_label)]
+
     features = st.sidebar.multiselect("Choose Columns to Cluster", cols)
     if "All" in features:
-        features = columns
-    label = st.sidebar.selectbox("Choose label column", columns)
+        features = [col for col in cols if col not in features]
 
     st.sidebar.subheader('4. Fuzzy Clustering Model')
     train_type = ['YES', 'NO']
@@ -66,15 +96,14 @@ if data_file is not None:
         df_full1 = df_full.sample(frac=ratio)
         df_full2 = df_full.drop(df_full1.index)
 
-        original_labels1 = list(map(str, df_full1[label]))
+        original_labels1 = []
+        original_labels2 = []
+        if label != 'None':
+            original_labels1 = list(map(str, df_full1[label]))
+            original_labels2 = list(map(str, df_full2[label]))
 
-        original_labels2 = list(map(str, df_full2[label]))
-
-        df1 = df_full1.dropna()  # drop all row that have NA in any attribute
-        df1 = df1[features]
-
-        df2 = df_full2.dropna()  # drop all row that have NA in any attribute
-        df2 = df2[features]
+        df1 = df_full1[features]
+        df2 = df_full2[features]
 
         if len(features) > 0:
             df1 = pd.get_dummies(df1, dtype=float)  # Convert categorical variable into dummy/indicator variables.
@@ -98,16 +127,17 @@ if data_file is not None:
                     my_cluster_centers, my_labels = my_clustering.fit()
 
                     pred = my_clustering.predict(my_cluster_centers, data_frame2)
-                    randIndex = rand_score(original_labels2, pred.T[0])
 
                     db_score = davies_bouldin_score(data_frame1, my_labels)
                     ch_score = calinski_harabasz_score(data_frame1, my_labels)
                     s_score = silhouette_score(data_frame1, my_labels)
-
-                    rand.append(randIndex)
                     db.append(db_score)
                     ch.append(ch_score)
                     sh.append(s_score)
+
+                    if label != 'None':
+                        randIndex = rand_score(original_labels2, pred.T[0])
+                        rand.append(randIndex)
 
                 st.write('---')
                 st.header('Performance Metrics')
@@ -139,16 +169,17 @@ if data_file is not None:
                     my_cluster_centers, my_labels = my_clustering.fit()
 
                     pred = my_clustering.predict(my_cluster_centers, data_frame2)
-                    randIndex = rand_score(original_labels2, pred.T[0])
 
                     db_score = davies_bouldin_score(data_frame1, my_labels)
                     ch_score = calinski_harabasz_score(data_frame1, my_labels)
                     s_score = silhouette_score(data_frame1, my_labels)
-
-                    rand.append(randIndex)
                     db.append(db_score)
                     ch.append(ch_score)
                     sh.append(s_score)
+
+                    if label != 'None':
+                        randIndex = rand_score(original_labels2, pred.T[0])
+                        rand.append(randIndex)
 
                 st.write('---')
                 st.header('Performance Metrics')
@@ -177,16 +208,17 @@ if data_file is not None:
                     my_cluster_centers, my_labels = my_clustering.fit()
 
                     pred = my_clustering.predict(my_cluster_centers, data_frame2)
-                    randIndex = rand_score(original_labels2, pred.T[0])
 
                     db_score = davies_bouldin_score(data_frame1, my_labels)
                     ch_score = calinski_harabasz_score(data_frame1, my_labels)
                     s_score = silhouette_score(data_frame1, my_labels)
-
-                    rand.append(randIndex)
                     db.append(db_score)
                     ch.append(ch_score)
                     sh.append(s_score)
+
+                    if label != 'None':
+                        randIndex = rand_score(original_labels2, pred.T[0])
+                        rand.append(randIndex)
 
                 st.write('---')
                 st.header('Performance Metrics')
@@ -204,8 +236,7 @@ if data_file is not None:
         filename1 = 'center.pkl'
         filename2 = 'label.pkl'
 
-        df = df_full.dropna()  # drop all row that have NA in any attribute
-        df = df[features]
+        df = df_full[features]
 
         if len(features) > 0:
             df = pd.get_dummies(df, dtype=float)  # Convert categorical variable into dummy/indicator variables.
@@ -224,8 +255,15 @@ if data_file is not None:
                 st.header('Model')
                 st.subheader("Centers")
                 download_model(my_cluster_centers, filename1)
-                st.subheader("Labels")
-                download_model(my_labels, filename2)
+                if regression_label != 'None':
+                    df_full['clusters'] = my_labels
+                    labels = []
+                    for i in range(0, K):
+                        tmp = df_full[df_full['clusters'] == i]
+                        tmp = tmp[regression_label].mean()
+                        labels.append(tmp)
+                    st.subheader("Labels")
+                    download_model(labels, filename2)
                 st.write('---')
 
         elif choice == "MCFCM":
@@ -244,8 +282,15 @@ if data_file is not None:
                 st.header('Model')
                 st.subheader("Centers")
                 download_model(my_cluster_centers, filename1)
-                st.subheader("Labels")
-                download_model(my_labels, filename2)
+                if regression_label != 'None':
+                    df_full['clusters'] = my_labels
+                    labels = []
+                    for i in range(0, K):
+                        tmp = df_full[df_full['clusters'] == i]
+                        tmp = tmp[regression_label].mean()
+                        labels.append(tmp)
+                    st.subheader("Labels")
+                    download_model(labels, filename2)
                 st.write('---')
 
         elif choice == "FCMT2I":
@@ -261,7 +306,14 @@ if data_file is not None:
                 st.header('Model')
                 st.subheader("Centers")
                 download_model(my_cluster_centers, filename1)
-                st.subheader("Labels")
-                download_model(my_labels, filename2)
+                if regression_label != 'None':
+                    df_full['clusters'] = my_labels
+                    labels = []
+                    for i in range(0, K):
+                        tmp = df_full[df_full['clusters'] == i]
+                        tmp = tmp[regression_label].mean()
+                        labels.append(tmp)
+                    st.subheader("Labels")
+                    download_model(labels, filename2)
                 st.write('---')
 

@@ -18,7 +18,7 @@ def linguistics(h, g, L):
         result.append(tmp)
     return result
 
-  linguisticValues = []
+  linguisticValues = g
   for i in range(L):
     linguisticValues = linguisticValues + combinations(h, g, i+1)
   return linguisticValues
